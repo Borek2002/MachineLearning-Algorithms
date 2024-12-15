@@ -21,8 +21,8 @@ def calculate_gradient(x, y, w, b):
     dj_db = 0
     for i in range(m):
         fx = (w * x[i] + b) - y[i]
-        dj_dw = fx * x[i]
-        dj_db = fx
+        dj_dw += fx * x[i]
+        dj_db += fx
     dj_dw = dj_dw/m
     dj_db = dj_db/m
     return dj_dw, dj_db

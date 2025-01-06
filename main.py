@@ -42,13 +42,14 @@ def predict(x, w, b):
     return np.dot(x, w) + b
 
 
-def compute_cost(x, y, w, b):
+def compute_cost(x, y, w, b, lambda_):
     sum = 0
     for i in range(x.shape[0]):
         sum += (predict(x[i], w, b) - y[i]) ** 2
-    return sum / (2 * x.shape[0])
+    reg = (np.sum(w**2) * lambda_)/(2 * x.shape[0]) #compute regralization
+    return sum / (2 * x.shape[0]) + reg
 
-def compute_gradient(X, y, w, b):
+def compute_gradient(X, y, w, b, lambda_):
     m,n = X.shape
     dj_dw = np.zeros((n,))
     dj_db = 0.
@@ -59,21 +60,22 @@ def compute_gradient(X, y, w, b):
             dj_dw[j] = dj_dw[j] + err * X[i, j]
         dj_db = dj_db + err
 
-    # err = predict(x, w, b) - y
+    # err = predict(X, w, b) - y
     # dj_db = np.sum(err)
-    # dj_dw = np.dot(x.T, err)
-    return dj_db/X.shape[0], dj_dw/X.shape[0]
+    # dj_dw = np.dot(X.T, err)
+    reg = (lambda_ / m) * w
+    return dj_db/X.shape[0], dj_dw/X.shape[0] + reg
 
-def gradient_descent(x, y, w, b, alpha, num_iter):
+def gradient_descent(x, y, w, b, alpha, num_iter, lambda_):
 
     w = copy.deepcopy(w)
     costsJ = np.zeros(num_iter)
 
     for i in range(num_iter):
-        dj_db, dj_dw = compute_gradient(x, y, w, b)
+        dj_db, dj_dw = compute_gradient(x, y, w, b, lambda_)
         w = w - alpha * dj_dw
         b = b - alpha * dj_db
-        costsJ[i] = compute_cost(x, y, w, b)
+        costsJ[i] = compute_cost(x, y, w, b, lambda_)
 
     return w, b, costsJ
 
@@ -138,7 +140,7 @@ compare_feature_distributions(X_train)
 
 plt.tight_layout()
 plt.show()
-w_final, b_final, costs = gradient_descent(x_norm, y_train, initial_w, initial_b, 1.0e-1,1000)
+w_final, b_final, costs = gradient_descent(x_norm, y_train, initial_w, initial_b, 1.0e-1,1000, 0.7)
 
 print(f"b,w found by gradient descent: {b_final:0.2f},{w_final} ")
 

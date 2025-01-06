@@ -12,7 +12,7 @@ def sigmoid(z):
     g = 1 / (1 + np.exp(-z))
     return g
 
-def cost_function(X, y, w, b):
+def cost_function(X, y, w, b, lambda_):
     m = X.shape[0]
     cost = 0.0
     # for i in range(m):
@@ -23,39 +23,39 @@ def cost_function(X, y, w, b):
     z = np.dot(X, w) + b
     g = sigmoid(z)
     cost = np.sum(-y * np.log(g) - (1-y) * np.log(1 - g))
-    cost = cost/m
+    reg = (np.sum(w ** 2) * lambda_) / (2 * m)  # compute regralization
+    cost = cost/m + reg
     return cost
 
-def compute_gradient(X, y, w, b):
+def compute_gradient(X, y, w, b, lambda_):
     m,n = X.shape
 
-    dj_dw = np.zeros((n,))
-    dj_db = 0
     z = np.dot(X, w) + b
     err = sigmoid(z) - y
     dj_dw = (1 / m) * np.dot(X.T, err)
     dj_db = (1 / m) * np.sum(err)
-    return dj_dw, dj_db
+    reg = (lambda_ / m) * w
+    return dj_dw + reg, dj_db
 
-def gradient_descent(X, y, w_in, b_in, alpha, iterations):
+def gradient_descent(X, y, w_in, b_in, alpha, iterations, lambda_):
 
     w = copy.deepcopy(w_in)
     b = b_in
 
     J_history = []
     for i in range(iterations):
-        dj_dw, dj_db = compute_gradient(X, y, w, b)
+        dj_dw, dj_db = compute_gradient(X, y, w, b, lambda_)
         w -= alpha * dj_dw
         b -= alpha * dj_db
-        J_history.append(cost_function(X, y, w, b))
+        J_history.append(cost_function(X, y, w, b, lambda_))
     return w, b, J_history
 
 w_tmp  = np.zeros_like(X_train[0])
 b_tmp  = 0.
-print(cost_function(X_train, y_train, w_tmp, b_tmp))
-print(compute_gradient(X_train, y_train, w_tmp, b_tmp))
+print(cost_function(X_train, y_train, w_tmp, b_tmp, 0.7))
+print(compute_gradient(X_train, y_train, w_tmp, b_tmp, 0.7))
 
-w, b, J_history = gradient_descent(X_train, y_train, w_tmp, b_tmp,0.1, 10000)
+w, b, J_history = gradient_descent(X_train, y_train, w_tmp, b_tmp,0.1, 10000, 0.7)
 print(w, b)
 # print(J_history)
 
